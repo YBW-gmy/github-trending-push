@@ -1,0 +1,29 @@
+name: GitHub Trending Push
+
+on:
+  schedule:
+    # 每两天 UTC 1:00 = 北京时间 9:00
+    - cron: "0 1 */2 * *"
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - name: Run trending push
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_AUTH_CODE: ${{ secrets.EMAIL_AUTH_CODE }}
+          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+          QMSG_KEY: ${{ secrets.QMSG_KEY }}
+          QMSG_TARGET_QQ: ${{ secrets.QMSG_TARGET_QQ }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: python trending_push.py
